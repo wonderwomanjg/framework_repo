@@ -1,7 +1,6 @@
 """
 Job Execution Module
-Handles dynamic job script execution via spark-submit.
-Provides standardized job invocation across orchestrators.
+Spark-submit based job execution with standardized directory structure.
 """
 import os
 import subprocess
@@ -11,16 +10,31 @@ from .logging import get_logger
 
 log = get_logger("job_executor")
 
+def normalize_path(path):
+    """
+    Normalize path to use OS-specific separators.
+    Handles mixed forward/backward slashes on Windows.
+    """
+    if not path:
+        return path
+    
+    # On Windows, handle mixed separators (\\, \, /)
+    if os.name == 'nt':
+        # First replace all backslashes (single or double) with forward slashes
+        # This creates a consistent intermediate representation
+        import re
+        path = re.sub(r'\\+', '/', path)  # Replace one or more backslashes with /
+        # Then replace all forward slashes with OS separator
+        path = path.replace('/', os.sep)
+    
+    # Normalize the path (resolves .., . and removes duplicate separators)
+    path = os.path.normpath(path)
+    
+    return path
+
 
 def get_job_script_path(job_params):
-    """
-    Build absolute path to job script from job parameters.
-    
-    Args:
-        job_params: Job parameters dict (must contain metadata and job_master)
-        
-    Returns:
-        str: Absolute path to job script
+    """Follows standardized structure: script_path/job_name/scripts/job_name.py
     """
     metadata = job_params.get("metadata", {})
     job_master = job_params.get("job_master", {})
@@ -34,36 +48,121 @@ def get_job_script_path(job_params):
     if not script_path:
         raise ValueError("script_path not found in job_master")
     
-    return os.path.join(script_path, f"{job_name}.py")
+    #### Replace forward slashes with OS separator
+    script_path = normalize_path(script_path)
+
+    # New standardized structure: script_path/job_name/scripts/job_name.py
+    job_script = os.path.join(script_path, job_name, "scripts", f"{job_name}.py")
+    
+    return job_script
 
 
-def validate_job_script(script_path):
+def get_job_sql_dir(job_params):
+    """Structure: script_path/job_name/sql/
     """
-    Validate that job script exists and has main() function.
+    metadata = job_params.get("metadata", {})
+    job_master = job_params.get("job_master", {})
     
-    Args:
-        script_path: Path to job script
-        
-    Returns:
-        tuple: (is_valid, error_message)
+    job_name = metadata.get("job_name")
+    script_path = job_master.get("script_path")
+    
+    if not job_name or not script_path:
+        raise ValueError("job_name and script_path required")
+    
+    script_path = normalize_path(script_path)
+    return os.path.join(script_path, job_name, "sql")
+
+
+def get_job_manifest_path(job_params):
+    """Structure: script_path/job_name/manifest/manifest.json
     """
-    if not os.path.exists(script_path):
-        return False, f"Job script not found: {script_path}"
+    metadata = job_params.get("metadata", {})
+    job_master = job_params.get("job_master", {})
     
-    # Try to load module and check for main()
+    job_name = metadata.get("job_name")
+    script_path = job_master.get("script_path")
+    
+    if not job_name or not script_path:
+        raise ValueError("job_name and script_path required")
+    
+    script_path = normalize_path(script_path)
+    return os.path.join(script_path, job_name, "manifest", "manifest.json")
+
+
+def get_job_base_dir(job_params):
+    """    Structure: script_path/job_name/ """
+    metadata = job_params.get("metadata", {})
+    job_master = job_params.get("job_master", {})
+    
+    job_name = metadata.get("job_name")
+    script_path = job_master.get("script_path")
+    
+    if not job_name or not script_path:
+        raise ValueError("job_name and script_path required")
+    
+    script_path = normalize_path(script_path)
+    return os.path.join(script_path, job_name)
+
+
+def validate_job_structure(job_params):
+    """Validate that job follows standardized directory structure.
+    """
+    errors = []
+    
     try:
-        spec = importlib.util.spec_from_file_location("temp_module", script_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        # Get raw script_path for debugging
+        job_master = job_params.get("job_master", {})
+        raw_script_path = job_master.get("script_path", "")
+        log.info(f"Raw script_path from Kudu: '{raw_script_path}'")
+        log.info(f"After normalization: '{normalize_path(raw_script_path)}'")
         
-        if not hasattr(module, 'main'):
-            return False, f"No main() function found in {script_path}"
+        base_dir = get_job_base_dir(job_params)
+        script_path = get_job_script_path(job_params)
+        sql_dir = get_job_sql_dir(job_params)
+        manifest_path = get_job_manifest_path(job_params)
         
-        return True, None
+        log.info(f"Expected base_dir: {base_dir}")
+        log.info(f"Checking if exists: {os.path.exists(base_dir)}")
+        
+        # List parent directory to help debug
+        parent_dir = os.path.dirname(base_dir)
+        if os.path.exists(parent_dir):
+            try:
+                contents = os.listdir(parent_dir)
+                log.info(f"Parent dir ({parent_dir}) contains: {contents}")
+            except Exception as e:
+                log.warning(f"Could not list parent: {e}")
+        else:
+            log.error(f"Parent directory doesn't exist: {parent_dir}")
+        
+        # Check base directory exists
+        if not os.path.exists(base_dir):
+            errors.append(f"Job base directory not found: {base_dir}")
+            return False, errors
+        
+        # Check scripts directory
+        scripts_dir = os.path.dirname(script_path)
+        if not os.path.exists(scripts_dir):
+            errors.append(f"Scripts directory not found: {scripts_dir}")
+        
+        # Check main script
+        if not os.path.exists(script_path):
+            errors.append(f"Job script not found: {script_path}")
+        
+        # Check sql directory (warning only, not all jobs need SQL)
+        if not os.path.exists(sql_dir):
+            log.warning(f"SQL directory not found: {sql_dir} (may not be required)")
+        
+        # Check manifest directory
+        manifest_dir = os.path.dirname(manifest_path)
+        if not os.path.exists(manifest_dir):
+            errors.append(f"Manifest directory not found: {manifest_dir}")
+        
+        return len(errors) == 0, errors
         
     except Exception as e:
-        return False, f"Error loading script: {e}"
-
+        errors.append(f"Error validating structure: {e}")
+        return False, errors
 
 def execute_job_spark_submit(job_params, logger=None, json_file_path=None):
     """
@@ -90,6 +189,14 @@ def execute_job_spark_submit(job_params, logger=None, json_file_path=None):
         logger.info("No script_path defined in job_master, skipping job execution")
         return True
     
+    # Validate job structure
+    is_valid, errors = validate_job_structure(job_params)
+    if not is_valid:
+        logger.error("Job structure validation failed:")
+        for error in errors:
+            logger.error(f"  - {error}")
+        return False
+    
     # Get job script path
     script_file = get_job_script_path(job_params)
     
@@ -109,15 +216,9 @@ def execute_job_spark_submit(job_params, logger=None, json_file_path=None):
     else:
         if os.name == 'nt':  # Windows
             spark_submit_cmd = os.path.join(spark_home, "bin", "spark-submit.cmd")
-            # Verify the .cmd file exists
             if not os.path.exists(spark_submit_cmd):
                 logger.error(f"spark-submit.cmd not found at: {spark_submit_cmd}")
-                logger.info(f"Checking for spark-submit2.cmd or spark-submit.bat...")
-                alt_cmd = os.path.join(spark_home, "bin", "spark-submit2.cmd")
-                if os.path.exists(alt_cmd):
-                    spark_submit_cmd = alt_cmd
-                else:
-                    raise FileNotFoundError(f"No valid spark-submit found in {spark_home}\\bin")
+                raise FileNotFoundError(f"No valid spark-submit found in {spark_home}\\bin")
         else:  # Linux/Mac
             spark_submit_cmd = os.path.join(spark_home, "bin", "spark-submit")
     
@@ -128,9 +229,15 @@ def execute_job_spark_submit(job_params, logger=None, json_file_path=None):
     master = spark_config.get("master", "local[*]")
     driver_memory = spark_config.get("driver_memory", "2g")
     executor_memory = spark_config.get("executor_memory", "2g")
+
+    print(f"Master: {master}, Driver Memory: {driver_memory}, Executor Memory: {executor_memory}")
     
     # Get project root directory (where framework package is located)
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    
+    # Get job base directory (for SQL files, etc.)
+    job_base_dir = get_job_base_dir(job_params)
+    sql_dir = get_job_sql_dir(job_params)
     
     # Build spark-submit command
     cmd = [
@@ -153,8 +260,6 @@ def execute_job_spark_submit(job_params, logger=None, json_file_path=None):
     if isinstance(py_files, str):
         py_files = [py_files]
     
-    # Add project root as a py-file (zip it if needed for cluster mode)
-    # For local mode, we'll use PYTHONPATH instead
     if py_files:
         cmd.extend(["--py-files", ",".join(py_files)])
     
@@ -165,6 +270,8 @@ def execute_job_spark_submit(job_params, logger=None, json_file_path=None):
     env = os.environ.copy()
     env["JOB_PARAMS_FILE"] = json_file_path
     env["PYTHONPATH"] = project_root + os.pathsep + env.get("PYTHONPATH", "")
+    env["JOB_BASE_DIR"] = job_base_dir  # Job can use this to find sql/, manifest/, etc.
+    env["JOB_SQL_DIR"] = sql_dir
     
     # Log execution details
     logger.info(f"\n{'='*70}")
@@ -172,19 +279,20 @@ def execute_job_spark_submit(job_params, logger=None, json_file_path=None):
     logger.info(f"Script: {script_file}")
     logger.info(f"Params: {json_file_path}")
     logger.info(f"Project Root: {project_root}")
+    logger.info(f"Job Base Dir: {job_base_dir}")
+    logger.info(f"SQL Dir: {sql_dir}")
     logger.info(f"Master: {master}")
-    logger.info(f"Command: {' '.join(cmd)}")
     logger.info(f"{'='*70}\n")
     
     try:
-        # Run spark-submit (use shell=True on Windows for .cmd files)
+        # Run spark-submit
         result = subprocess.run(
             cmd,
             env=env,
             capture_output=True,
             text=True,
             check=False,
-            shell=(os.name == 'nt')  # Required for .cmd files on Windows
+            shell=(os.name == 'nt')
         )
         
         # Log output
@@ -195,93 +303,12 @@ def execute_job_spark_submit(job_params, logger=None, json_file_path=None):
         
         # Check return code
         if result.returncode == 0:
-            logger.info(f"✓ Job '{job_name}' completed successfully")
+            logger.info(f"Job '{job_name}' completed successfully")
             return True
         else:
-            logger.error(f"✗ Job '{job_name}' failed with exit code {result.returncode}")
+            logger.error(f"Job '{job_name}' failed with exit code {result.returncode}")
             raise RuntimeError(f"Spark job failed with exit code {result.returncode}")
             
     except Exception as e:
         logger.error(f"Spark-submit execution failed: {e}", exc_info=True)
         raise
-
-
-def execute_job_inprocess(job_params, logger=None, json_file_path=None):
-    """
-    Execute job in-process (original implementation).
-    Faster for development/testing but doesn't use Spark cluster.
-    """
-    if logger is None:
-        logger = log
-    
-    metadata = job_params.get("metadata", {})
-    job_master = job_params.get("job_master", {})
-    job_name = metadata.get("job_name")
-    
-    # Set environment variable
-    if json_file_path:
-        os.environ["JOB_PARAMS_FILE"] = json_file_path
-        logger.info(f"✓ Set JOB_PARAMS_FILE={json_file_path}")
-    
-    # Check if script_path is defined
-    if not job_master.get("script_path"):
-        logger.info("No script_path defined, skipping execution")
-        return True
-    
-    # Get job script path
-    script_file = get_job_script_path(job_params)
-    
-    if not os.path.exists(script_file):
-        logger.warning(f"Job script not found: {script_file}")
-        return False
-    
-    logger.info(f"\n{'='*70}")
-    logger.info(f"Executing in-process: {script_file}")
-    logger.info(f"{'='*70}\n")
-    
-    try:
-        # Import and run
-        spec = importlib.util.spec_from_file_location(job_name, script_file)
-        job_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(job_module)
-        
-        if hasattr(job_module, 'main'):
-            job_module.main()
-            logger.info(f"✓ Job '{job_name}' completed")
-            return True
-        else:
-            logger.warning(f"No main() function in {script_file}")
-            return False
-            
-    except Exception as e:
-        logger.error(f"Job execution failed: {e}", exc_info=True)
-        raise
-
-
-def execute_job(job_params, logger=None, json_file_path=None, use_spark_submit=None):
-    """
-    Execute a job script.
-    
-    Args:
-        use_spark_submit: True=spark-submit, False=in-process, None=auto-detect
-    """
-    if use_spark_submit is None:
-        job_master = job_params.get("job_master", {})
-        use_spark_submit = job_master.get("use_spark_submit", False)
-    
-    if use_spark_submit:
-        return execute_job_spark_submit(job_params, logger, json_file_path)
-    else:
-        return execute_job_inprocess(job_params, logger, json_file_path)
-
-
-def execute_job_safe(job_params, logger=None, json_file_path=None, use_spark_submit=None):
-    """
-    Execute job with exception handling.
-    Returns (success, error_message) tuple.
-    """
-    try:
-        success = execute_job(job_params, logger, json_file_path, use_spark_submit)
-        return success, None
-    except Exception as e:
-        return False, str(e)

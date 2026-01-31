@@ -1,6 +1,7 @@
 """
 View Kudu table data using PySpark.
 Python 3.11 + PySpark 3.5.0
+ ##usage python kudu_view.py job_master
 """
 from pyspark.sql import SparkSession
 import os

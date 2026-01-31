@@ -331,6 +331,75 @@ export PYTHONPATH="/c/MyFiles/GE/Orch"
 export PATH="$JAVA_HOME/bin:$SPARK_HOME/bin:$HADOOP_HOME/bin:$PATH"
 
 
-orc_path = r"C:\MyFiles\GE\Orch\out\fdm_landing\gels_fpms_t_contract_master\biz_dt=2025-05-31\biz_status=active\*.orc"
+orc_path = r"C:\MyFiles\GE\Orch\out\fdm_landing\gels_fpms_t_contract_master"
 src = spark.read.orc(orc_path)
 src.show(20,truncate=False)
+
+
+##################################################################
+
+
+direct CLI --On-prem / Hadoop cluster (YARN)
+
+spark-submit \
+  --master yarn \
+  --deploy-mode cluster \
+  --conf spark.yarn.queue=default \
+  --driver-memory 4g \
+  --executor-memory 4g \
+  --num-executors 4 \
+  --executor-cores 2 \
+  s3://your-bucket/jobs/my_job.py --arg1 val1
+  
+  MY CODE 
+  
+      # Build spark-submit command
+    cmd = [
+        spark_submit_cmd,
+        "--master", master,
+        "--driver-memory", driver_memory,
+        "--executor-memory", executor_memory,
+        "--conf", f"spark.app.name={job_name}",
+        "--conf", "spark.driver.extraJavaOptions=--add-exports java.base/sun.nio.ch=ALL-UNNAMED",
+        "--conf", "spark.executor.extraJavaOptions=--add-exports java.base/sun.nio.ch=ALL-UNNAMED",
+        "--conf", f"spark.executorEnv.PYTHONPATH={project_root}",
+    ]
+    
+    # Add additional configs
+    for key, value in spark_config.get("additional_conf", {}).items():
+        cmd.extend(["--conf", f"{key}={value}"])
+    
+    # Add py-files to include framework package
+    py_files = spark_config.get("py_files", [])
+    if isinstance(py_files, str):
+        py_files = [py_files]
+    
+    if py_files:
+        cmd.extend(["--py-files", ",".join(py_files)])
+    
+    # Add the Python script
+    cmd.append(script_file)
+    
+            result = subprocess.run(
+            cmd,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+            shell=(os.name == 'nt')
+        )
+  
+  You invoke spark-submit using subprocess.run with a robust cross‑OS resolution of the executable.
+You pass key configs (--master, --driver-memory, --executor-memory, --conf spark.app.name=...), and you inject PYTHONPATH, JOB_BASE_DIR, JOB_SQL_DIR into the environment.
+You allow extra --py-files.
+
+
+
+###############################
+
+Uses your framework (get_logger, set_spark_log_level, read_csv, read_orc, write_orc)
+Loads params via JOB_PARAMS_FILE (JSON) and uses JOB_SQL_DIR for HQL paths
+Creates temp views for sources (row1, row2, …)
+Executes HQL via exec_hql(...)
+Writes sinks; if sink format is orc, uses write_orc; otherwise falls back to .write.format(...).save(...)
+Keeps your partitioning behavior (partition_cols from params)

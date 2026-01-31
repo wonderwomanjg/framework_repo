@@ -3,16 +3,16 @@ Initialize Kudu tables for the orchestration framework, dynamically.
 Includes: job_master, process_control, job_dependency, sys_params, execution_log
 Run only the table(s) passed via CLI; use --tables all to run everything.
 # Run only job_master
-python init_kudu_tables.py --tables job_master
+python init_params_kudu.py --tables job_master
 
 # Run two tables
-python init_kudu_tables.py --tables job_master process_control
+python init_params_kudu.py --tables job_master process_control
 
 # Run all tables (default behavior if you pass 'all')
-python init_kudu_tables.py --tables all
+python init_params_kudu.py --tables all
 
 # Override Kudu master and verify after inserts
-python init_kudu_tables.py --tables job_master --kudu-master kudu-master.prod:7051 --verify
+python init_params_kudu.py --tables job_master --kudu-master kudu-master.prod:7051 --verify
 
 """
 
@@ -70,8 +70,10 @@ def init_job_master(spark, kudu_master):
         StructField("comments", StringType(), False),
     ])
     job_master_data = [
-        ("JOB_1001", "etl_lnd_gels_fpms_t_contract_master", "", "C:/MyFiles/GE/Orch/jobs", "first job"),
-        ("JOB_2001", "etl_trans_fpms_contract_master", "", "C:/MyFiles/GE/Orch/jobs", "second_job"),
+        ("JOB_1001", "etl_lnd_gels_fpms_t_contract_master", "", "C:/data/projects/fdm/landing/gels/fpms/core", "first job"),
+        ("JOB_2001", "etl_trans_fpms_contract_master", "", "C:/data/projects/fdm/transform/gels/fpms/core", "second_job"),
+        ("JOB_3001", "etl_lnd_gels_fpms_t_contract_product", "", "C:/data/projects/fdm/landing/gels/fpms/core", "third job"),
+         ("JOB_4001", "etl_lnd_gels_fpms_t_product_currency", "", "C:/data/projects/fdm/landing/gels/fpms/core", "fourth job"),
     ]
     df = spark.createDataFrame(job_master_data, job_master_schema)
     try:

@@ -30,9 +30,8 @@ os.environ['PATH'] = (
     os.path.join(os.environ['HADOOP_HOME'], 'bin') + os.pathsep +
     os.environ.get('PATH', '')
 )
-#from framework.params_kudu import read_kudu_kv
+#from framework.kudu_fetch_params import 
 from framework.logging import get_logger
-from framework.json_utils import dump_json_atomic
 from framework.kudu_fetch_params import fetch_all_job_params
 from framework.params_loader import save_job_params_to_json, get_job_params_path, print_params_summary
 from framework.job_executor import execute_job_spark_submit
@@ -101,6 +100,8 @@ def main():
     # Save job parameters to JSON file
     json_file_path = get_job_params_path(args.job_name)
     save_job_params_to_json(job_params, json_file_path, pretty=args.pretty)
+
+    
     log.info(f"✓ Wrote comprehensive job parameters to: {json_file_path}")
     print_params_summary(job_params, json_file_path)
     

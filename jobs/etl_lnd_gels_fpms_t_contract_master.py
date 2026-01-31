@@ -63,7 +63,12 @@ def main():
     out_path = params.get("out_path", r"C:\MyFiles\GE\Orch\out\fdm_landing\gels_fpms_t_contract_master")
     ################################################################################
 
-    sql_dir = params.get("sql_dir", r"C:\MyFiles\GE\Orch\sql")
+  
+    # Get SQL directory from environment (set by job_executor)
+    sql_dir = os.environ.get("JOB_SQL_DIR")
+    if not sql_dir:
+        # Fallback to params if not set by executor
+        sql_dir = params.get("sql_dir", r"C:\MyFiles\GE\Orch\sql")
 
     log.info(f"Parameters: env={env}, entity={entity}, source_system={source_system}, table_name={table_name}")
     log.info(f"Paths: input_path={input_path}, sql_dir={sql_dir}, out_path={out_path}")
@@ -93,7 +98,7 @@ def main():
     df_tMap_1_out1 = exec_hql(
         spark, 
         'out1', 
-        os.path.join(sql_dir, 'tMap_1_out1.hql'),
+        os.path.join(sql_dir, 'etl_lnd_gels_fpms_t_contract_master_tMap_1_out1.hql'),
         log
     )
     
