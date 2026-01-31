@@ -1,0 +1,15 @@
+
+-- CTE/setup statements if needed
+-- e.g., CREATE TEMP VIEW, WITH clauses, etc.
+
+-- Final SELECT (becomes the DataFrame written to ORC)
+SELECT
+  c.contract_id,
+  c.customer_id,
+  c.premium_amt,
+  -- If you omit these, the job injects defaults:
+  c.biz_dt,            -- else injected from BIZ_DT
+  c.biz_status,        -- else 'active'
+  c.change_indicator   -- else 'N'
+FROM ${VIEW_NAME} c
+WHERE c.biz_dt = '${BIZ_DT}';

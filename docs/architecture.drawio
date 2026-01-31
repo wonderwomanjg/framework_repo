@@ -1,0 +1,248 @@
+<mxfile host="app.diagrams.net" modified="2026-01-30T00:00:00.000Z" agent="draw.io" version="22.1.0">
+  <diagram name="Orchestration Framework Architecture" id="architecture">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="GE Orchestration Framework - Architecture Overview" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="500" y="20" width="600" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Layer 1: Data Source (Kudu) -->
+        <mxCell id="layer1-bg" value="Data Storage Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=14;fontStyle=1;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="360" height="480" as="geometry" />
+        </mxCell>
+        
+        <!-- Kudu Master/TServer -->
+        <mxCell id="kudu-cluster" value="Kudu Cluster (Docker)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="120" y="140" width="280" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Kudu Tables -->
+        <mxCell id="table-job-master" value="job_master&#xa;(Job Metadata)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="120" y="210" width="120" height="70" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="table-job-dependency" value="job_dependency&#xa;(Dependencies)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="260" y="210" width="120" height="70" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="table-process-control" value="process_control&#xa;(Run Config)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="120" y="310" width="120" height="70" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="table-sys-params" value="sys_params&#xa;(System Config)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="260" y="310" width="120" height="70" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="table-execution-log" value="execution_log&#xa;(Audit Trail)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="190" y="410" width="120" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- Layer 2: Orchestrator -->
+        <mxCell id="layer2-bg" value="Orchestration Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;fontSize=14;fontStyle=1;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="500" y="100" width="360" height="480" as="geometry" />
+        </mxCell>
+        
+        <!-- Orchestrator -->
+        <mxCell id="orchestrator" value="run_kudu.py&#xa;Orchestrator" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="140" width="280" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Framework Components -->
+        <mxCell id="framework-label" value="Framework Modules" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="540" y="210" width="280" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="fw-kudu-fetch" value="kudu_fetch_params.py&#xa;Fetch job params from Kudu" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="540" y="240" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="fw-params-loader" value="params_loader.py&#xa;JSON I/O" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="690" y="240" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="fw-job-executor" value="job_executor.py&#xa;Dynamic job exec" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="540" y="320" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="fw-logging" value="logging.py&#xa;Structured logging" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="690" y="320" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="fw-metrics" value="metrics.py&#xa;Performance tracking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="540" y="400" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="fw-config" value="config.py&#xa;Configuration mgmt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="690" y="400" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="fw-json-utils" value="json_utils.py&#xa;Atomic writes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="615" y="480" width="130" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Layer 3: Jobs -->
+        <mxCell id="layer3-bg" value="Job Execution Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;verticalAlign=top;fontSize=14;fontStyle=1;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="920" y="100" width="360" height="480" as="geometry" />
+        </mxCell>
+        
+        <!-- ETL Job -->
+        <mxCell id="job-contract-master" value="etl_lnd_gels_fpms_t_contract_master.py" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontColor=#ffffff;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="960" y="140" width="280" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Job Components -->
+        <mxCell id="job-step1" value="1. Load Job Params&#xa;(from JSON)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;" vertex="1" parent="1">
+          <mxGeometry x="960" y="210" width="280" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="job-step2" value="2. Read HQL Template&#xa;(SQL transformations)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;" vertex="1" parent="1">
+          <mxGeometry x="960" y="280" width="280" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="job-step3" value="3. Execute Spark SQL&#xa;(Data processing)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;" vertex="1" parent="1">
+          <mxGeometry x="960" y="350" width="280" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="job-step4" value="4. Write Output&#xa;(CSV to filesystem)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;" vertex="1" parent="1">
+          <mxGeometry x="960" y="420" width="280" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="job-step5" value="5. Return Control&#xa;(Back to orchestrator)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;" vertex="1" parent="1">
+          <mxGeometry x="960" y="490" width="280" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- Layer 4: Output -->
+        <mxCell id="layer4-bg" value="Output Layer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;verticalAlign=top;fontSize=14;fontStyle=1;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="100" width="200" height="480" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="output-csv" value="customer_contract.csv" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#f8cecc;strokeColor=#b85450;size=15;" vertex="1" parent="1">
+          <mxGeometry x="1370" y="180" width="140" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="output-logs" value="Logs&#xa;(job_*.log)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#f8cecc;strokeColor=#b85450;size=15;" vertex="1" parent="1">
+          <mxGeometry x="1370" y="290" width="140" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="output-params" value="Job Params JSON&#xa;(params/*.json)" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#f8cecc;strokeColor=#b85450;size=15;" vertex="1" parent="1">
+          <mxGeometry x="1370" y="400" width="140" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- Data Flow Arrows -->
+        <mxCell id="arrow1" value="1. Fetch Params" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;" edge="1" parent="1" source="orchestrator" target="table-job-master">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="470" y="165" />
+              <mxPoint x="470" y="245" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow2" value="2. Save JSON" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;" edge="1" parent="1" source="orchestrator" target="output-params">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="680" y="200" />
+              <mxPoint x="1310" y="200" />
+              <mxPoint x="1310" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow3" value="3. Execute Job" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;" edge="1" parent="1" source="orchestrator" target="job-contract-master">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow4" value="4. Write Output" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;strokeColor=#0066CC;" edge="1" parent="1" source="job-step4" target="output-csv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow5" value="Logging" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1;strokeColor=#666666;dashed=1;" edge="1" parent="1" source="fw-logging" target="output-logs">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="890" y="350" />
+              <mxPoint x="890" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Supporting Components Box -->
+        <mxCell id="support-bg" value="Supporting Components" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;verticalAlign=top;fontSize=14;fontStyle=1;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="80" y="640" width="780" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="docker-compose" value="Docker Compose&#xa;(Kudu + Impala)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="120" y="680" width="150" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="sql-templates" value="SQL Templates&#xa;(contract_transform.hql)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="300" y="680" width="150" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="tools" value="Tools&#xa;(init scripts, view tools)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="480" y="680" width="150" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="venv" value="Python venv&#xa;(PySpark 3.5, Kudu client)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3c800;strokeColor=#B09500;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="660" y="680" width="150" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Execution Flow Box -->
+        <mxCell id="flow-bg" value="Execution Flow" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff4e6;strokeColor=#d79b00;verticalAlign=top;fontSize=14;fontStyle=1;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="920" y="640" width="620" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="flow-text" value="1. User runs orchestrator (run_kudu.py)&#xa;2. Orchestrator fetches params from Kudu tables&#xa;3. Params saved to JSON file (params/*.json)&#xa;4. Job script executed dynamically with params&#xa;5. Job processes data using Spark SQL&#xa;6. Output written to CSV&#xa;7. Orchestrator logs completion and stops Spark" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="960" y="675" width="550" height="95" as="geometry" />
+        </mxCell>
+        
+        <!-- Legend -->
+        <mxCell id="legend-bg" value="Legend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;fontSize=12;fontStyle=1;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="80" y="840" width="400" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-data" value="Data Storage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="120" y="880" width="150" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-orch" value="Orchestration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="290" y="880" width="150" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-job" value="Job Execution" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="120" y="930" width="150" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-output" value="Output Files" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="290" y="930" width="150" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-support" value="Supporting Components" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="120" y="980" width="150" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Key Features Box -->
+        <mxCell id="features-bg" value="Key Features" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;fontSize=12;fontStyle=1;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="540" y="840" width="440" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="features-text" value="✓ Dynamic job parameter management via Kudu&#xa;✓ Reusable framework modules&#xa;✓ Structured JSON logging&#xa;✓ Performance metrics tracking&#xa;✓ Atomic file operations&#xa;✓ Windows-compatible CSV output (no winutils needed)&#xa;✓ Containerized Kudu for development&#xa;✓ Spark 3.5 with Kudu connector" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="570" y="875" width="390" height="135" as="geometry" />
+        </mxCell>
+        
+        <!-- Tech Stack Box -->
+        <mxCell id="tech-bg" value="Technology Stack" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;fontSize=12;fontStyle=1;align=left;spacingLeft=10;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="840" width="500" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="tech-text" value="• Python 3.11&#xa;• PySpark 3.5.0&#xa;• Apache Kudu 1.17.0 (kudu-spark3_2.12:1.17.0)&#xa;• Docker (Kudu containers)&#xa;• Pandas (CSV fallback)&#xa;• JDK 17 (Eclipse Adoptium)&#xa;• Windows 11 development environment" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="875" width="450" height="135" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

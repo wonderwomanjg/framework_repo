@@ -1,0 +1,336 @@
+1. Set LOG_FILE env var AND  All modules use same log file 
+2. Create Spark session with Kudu connector
+3. Call fetch_all_job_params():
+   a. Fetch job_master by job_name
+   b. Fetch job_dependency by job_id
+   c. Fetch process_control by entity+source_system
+   d. Fetch sys_params by job_name
+   e. Build comprehensive JSON structure
+4. Write JSON to params/{job_name}.json
+5. Set JOB_PARAMS_FILE env var = JSON file path
+6. Dynamically import and execute job script
+
+Job Reads Parameters (Automatic)
+json_file_path = os.environ.get("JOB_PARAMS_FILE")  #  Set by orchestrator
+with open(json_file_path, 'r') as f:
+    all_params = json.load(f)
+
+# Extract segregated data
+metadata = all_params["metadata"]
+job_master = all_params["job_master"]
+process_control = all_params["process_control"]  # List of all records
+sys_params = all_params["sys_params"]  # List of Spark configs
+
+
+ENVIRONMENT VARIABLES
+1. LOG_FILE (Set by orchestrator)
+Purpose: Ensures all modules write to same log file
+Value: job_2026-01-29_15-25-25.log
+Used by: framework.logging.get_logger()
+
+
+2. JOB_PARAMS_FILE (Set by orchestrator)
+Purpose: Passes JSON file path to child jobs
+Value: etl_lnd_gels_fpms_t_contract_master.json
+Used by: Job scripts to read parameters
+
+=============================Table and its usages  ===========================
+
+
+1. job_master - Job Configuration Registry
+Primary Key: job_id
+Columns: job_id, job_name, context_params, script_path, comments
+Purpose: Central registry of all jobs 
+
+2. process_control - Process Date Management
+Primary Key: entity + source_system + biz_dt
+Columns: entity, source_system, biz_dt, start_dt, end_dt, process_dt, reprocess_dt, business_keys, compare_cols, last_update_ts
+Purpose: Controls date ranges 
+
+3. job_dependency - Job Dependency Graph
+Primary Key: dependent_job_id + dependent_job_name
+Columns: dependent_job_id, dependent_job_name, parent_job_id, parent_job_name, dependency_level
+Purpose: Defines job execution order and dependencies
+
+4. sys_params - Spark Configuration
+Primary Key: param_key + environment + key_name
+Columns: param_key, param_value, environment, key_name, param_type
+Purpose: Spark configs, system settings per job and environment
+
+5. execution_log - Audit Trail
+Primary Key: id
+Columns: id, job_id, job_name, status, start_time, end_time, error_message
+Purpose:  execution tracking
+
+
+
+=============================Kudu Table Creation Script  ===========================
+
+python tools/init_params_kudu.py -> Creates Spark session with Kudu connector and Data Inserted:
+
+job_master: JOB_1001 = etl_lnd_gels_fpms_t_contract_master
+process_control: Entity=GELS, Source=FPMS, biz_dt=2024-05-15
+job_dependency: 1 dependency record
+sys_params: 6 Spark config records (driver memory, executor cores, etc.)
+
+
+=============================Execution Logging Table Flow ===========================
+
+1. Orchestrator Starts → Fetches job params from Kudu tables
+
+2. log_job_start() called → Inserts record in execution_log table:
+
+    id: Auto-generated (timestamp_random)
+    job_id: From job_master table
+    job_name: From job_master table
+    run_id: From process_control table
+    status: "Started"
+    start_time: Current timestamp (UNIXTIME_MICROS)
+    spark_app_id: Captured from Spark context
+
+3. Job Executes → Runs the contract_master.py or any other job
+
+4. On Success → log_job_completion() updates record:
+
+    status: "Completed"
+    end_time: Current timestamp
+    Calculates duration
+5. On Failure → log_job_completion() updates record:
+
+    status: "Failed: error message"
+    end_time: Current timestamp
+    Exception is re-raised
+
+Data Sources (all from job_params):
+
+job_id → job_params["metadata"]["job_id"] (from job_master)
+job_name → job_params["metadata"]["job_name"] (from job_master)
+run_id → job_params["process_control"][0]["run_id"] (from process_control)
+spark_app_id → spark.sparkContext.applicationId
+The execution log now automatically tracks every job run with all relevant IDs!
+
+
+In execution_logger.py: Capture spark_app_id at the VERY beginning of log_job_completion() function before any Kudu operations, with error handling in case Spark context is already None
+
+In run_kudu.py: Use try-except-finally pattern to ensure:
+
+Execution logging always happens in finally block before spark.stop()
+Spark session is always properly closed
+Exception is re-raised after logging if job failed
+
+Create framework/params_loader.py - for loading job params from JSON file
+Create framework/job_executor.py - for dynamic job execution
+Update run_kudu.py to use dump_json_atomic and job_executor
+Update contract_master.py to use params_loader
+Update framework/init.py to export new functions
+
+
+
+
+The error shows a java.net.SocketException: Connection reset when trying to write to the execution_log table in Kudu. This is a network connectivity issue between Spark and the Kudu server.
+
+The root cause is a network connectivity problem between Spark and Kudu.
+
+
++=======================================###########======================
+Job writes to ORC files, not to Kudu. The Connection reset error is happening when trying to read/write to the execution_log table in Kudu, not during the main data processing. The issue is that localhost:7051 won't work reliably on Windows when Kudu is in Docker.
+
+The solution is to ensure the execution logger can handle transient connection errors gracefully and not crash. Let me also verify if we're setting the Kudu master correctly for Docker:
+
+Read run_kudu.py, lines 55 to 80
+
+The problem is that when you're running PySpark on Windows with Kudu in Docker, the connection can be unstable. The execution logger already has try-except error handling, but it seems the connection failure is happening during the DataFrame write operation which throws a SparkException.
+
+Retry up to 3 times when encountering connection errors (Connection reset, SocketException, etc.)
+Use exponential backoff (1s, 2s, 4s delays between retries)
+Log warnings during retries so you can see what's happening
+Truncate error messages to 500 characters to avoid log bloat
+Still not crash the main job if logging ultimately fails
+
+
+
+
+
+
+
+
+
+########################################################################
+
+Currently, your execute_job() function runs the Python script in-process using importlib - it loads the module and calls main() directly within the same Python process. This works for simple jobs but doesn't leverage Spark's distributed execution capabilities.
+
+
+###########################Win32 error #################################
+
+The error [WinError 193] %1 is not a valid Win32 application means you're trying to execute a Linux/bash script on Windows. The issue is that spark-submit without the .cmd extension on Windows won't work.
+
+before ----
+Python 3.11 + pyspark (pip install)
+├── Python bindings for Spark API
+├── No actual Spark executables (spark-submit, spark-shell)
+├── No distributed execution capabilities
+└── Limited to in-process Python execution
+
+after ---
+Apache Spark 3.5.8 (standalone distribution)
+├── Spark executables (spark-submit.cmd, spark-shell.cmd)
+├── Full distributed execution engine
+├── Hadoop integration (HDFS, file formats)
+├── Native libraries for ORC/Parquet
+└── PySpark as Python API layer
+
+Why In-Process Execution Failed but spark-submit Worked????
+# This loads the Python module and runs main() in the SAME process
+spec = importlib.util.spec_from_file_location(job_name, script_file)
+job_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(job_module)  # ❌ Runs in orchestrator's Spark context
+job_module.main()
+
+❌ Shares Spark context with orchestrator (conflicts)
+❌ Orchestrator's Spark has Kudu dependencies loaded
+❌ Job's Spark session can't override configs
+❌ Environment variables get mixed up
+
+
+Solution with spark-submit:
+# Spawns a NEW, ISOLATED process
+subprocess.run([
+    "spark-submit.cmd",
+    "--master", "local[*]",
+    "etl_lnd_gels_fpms_t_contract_master.py"
+])  # ✓ Fresh Spark context, clean environment
+
+✅ Separate JVM process (no conflicts)
+✅ Independent Spark session
+✅ Clean environment variables
+✅ Proper resource isolation
+
+
+
+#######################VERY VERY IMPORTANT ###################################
+3. Why ORC Writing Failed Without Full Spark
+df.write.format("orc").save(path)  # ❌ FAILED
+
+ERROR : UnsatisfiedLinkError: 'boolean org.apache.hadoop.io.nativeio.NativeIO$Windows.access0'
+This means: "I can't find the Windows-specific native code to access files"
+
+
+Missing native libraries: ORC requires hadoop.dll and winutils.exe
+No Hadoop integration: PySpark library doesn't include Hadoop binaries
+Windows compatibility: Native I/O operations need Windows-specific binaries
+
+
+AFTER INSTALLING SPARK 
+
+C:\hadoop\bin\
+  ├── winutils.exe    ✓ (Windows file system operations)
+  └── hadoop.dll      ✓ (Native Hadoop library)
+
+C:\spark\
+  ├── bin\spark-submit.cmd  ✓
+  ├── jars\              ✓ (ORC codec libraries)
+  └── python\pyspark\    ✓ (Python bindings)
+  
+####################################################################################
+job executor changess
+# 1. Windows-specific spark-submit path
+if os.name == 'nt':  # Windows
+    spark_submit_cmd = os.path.join(spark_home, "bin", "spark-submit.cmd")
+else:  # Linux
+    spark_submit_cmd = os.path.join(spark_home, "bin", "spark-submit")
+
+# 2. Added PYTHONPATH for framework imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env["PYTHONPATH"] = project_root + os.pathsep + env.get("PYTHONPATH", "")
+
+# 3. Pass environment to subprocess
+env["JOB_PARAMS_FILE"] = json_file_path
+subprocess.run(cmd, env=env, shell=(os.name == 'nt'))  # shell=True for .cmd files
+
+# 4. Spark config to propagate PYTHONPATH
+"--conf", f"spark.executorEnv.PYTHONPATH={project_root}"
+
+
+┌─────────────────────────────────────────┐
+│  Orchestrator (run_kudu.py)             │
+│  ├── Fetches params from Kudu           │
+│  ├── Saves to JSON file                 │
+│  └── Calls spark-submit ─────┐          │
+└───────────────────────────────│──────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────┐
+│  spark-submit.cmd (NEW PROCESS)         │
+│  ├── Reads: JOB_PARAMS_FILE env var     │
+│  ├── Imports: framework (via PYTHONPATH)│
+│  ├── Creates: Fresh Spark session       │
+│  └── Executes: job's main()             │
+└─────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────┐
+│  Job Script (etl_lnd_*.py)              │
+│  ├── Load params from JSON              │
+│  ├── Create Spark session               │
+│  ├── Read ORC (using winutils)          │
+│  ├── Execute HQL transformations        │
+│  └── Write ORC output (using hadoop.dll)│
+└─────────────────────────────────────────┘
+
+Component    	        Purpose	            Without It
+Java 17	                JVM for Spark	    ❌ Spark won't run
+Apache Spark 3.5.8  	Execution engine	❌ No spark-submit
+winutils.exe	        Windows file ops	❌ ORC write fails
+hadoop.dll	            Native I/O      	❌ ORC write fails
+PySpark (pip)	        Python API	        ⚠️ Can work but limited
+PYTHONPATH setup	    Import framework	❌ Module not found
+
+
+#######################################################################################
+
+When you run spark-submit, it uses:
+
+spark-submit.cmd my_job.py
+
+What happens:
+
+✅ Uses Spark's bundled PySpark (pyspark)
+✅ Ignores your pip-installed pyspark
+✅ Uses your system Python (3.11.1) as the interpreter
+⚠️ Needs your custom libraries (framework module)
+
+
+Since you're using spark-submit, you don't need pip's pyspark:
+
+
+
+######################################################
+
+Best Solution: Use PowerShell for pyspark Shell
+Git Bash is for Unix-style commands, PowerShell is for Windows tools like Spark.
+
+# Navigate to your project
+cd C:\MyFiles\GE\Orch
+
+# Activate virtual environment
+.\.venv311\Scripts\Activate.ps1
+
+# Set environment (if not already permanent) -- for the powershell 
+$env:JAVA_HOME = "C:\Program Files\Eclipse Adoptium\jdk-17.0.17.10-hotspot"
+$env:SPARK_HOME = "C:\spark"
+$env:HADOOP_HOME = "C:\hadoop"
+
+###############################for the git bash (unix styles_)
+# Set environment variables
+export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-17.0.17.10-hotspot"
+export SPARK_HOME="/c/spark"
+export HADOOP_HOME="/c/hadoop"
+export PYTHONPATH="/c/MyFiles/GE/Orch"
+
+# Update PATH
+export PATH="$JAVA_HOME/bin:$SPARK_HOME/bin:$HADOOP_HOME/bin:$PATH"
+
+
+orc_path = r"C:\MyFiles\GE\Orch\out\fdm_landing\gels_fpms_t_contract_master\biz_dt=2025-05-31\biz_status=active\*.orc"
+src = spark.read.orc(orc_path)
+src.show(20,truncate=False)

@@ -1,0 +1,13 @@
+customer_id,contract_id,status,amount
+1,1000,pass,10
+1,1001,pass,11
+1,1002,pass,12
+1,1003,fail,13
+1,1004,pass,14
+1,1005,pass,15
+1,1006,pass,16
+1,1007,ok,17
+1,1008,pass,18
+1,1009,pass,19
+1,1010,pass,20
+1,1011,pass,21

@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual Environments
+.venv*/
+venv*/
+env*/
+ENV*/
+
+# Logs
+logs/
+*.log
+derby.log
+
+# Spark/Hadoop
+spark-warehouse/
+metastore_db/
+
+# Output data
+out/
+*.orc
+*.parquet
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Credentials & Secrets
+*.secret
+.env
+*.key
+*.pem
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Job parameter files (may contain sensitive data)
+params/*.json
+
+# Test data (optional - uncomment if you want to exclude)
+# data/*.csv
+# data/*.orc

@@ -1,0 +1,20 @@
+:: loading settings :: url = jar:file:/C:/MyFiles/GE/Orch/.venv311/Lib/site-packages/pyspark/jars/ivy-2.5.1.jar!/org/apache/ivy/core/settings/ivysettings.xml
+{"ts": "2026-01-29 17:06:08,655", "level": "INFO", "logger": "orchestrator_kudu", "msg": "Fetching configuration from Kudu at localhost:7051"}
+{"ts": "2026-01-29 17:06:08,655", "level": "INFO", "logger": "orchestrator_kudu", "msg": "Job: etl_lnd_gels_fpms_t_contract_master, Entity: GELS, Source System: FPMS, Env: PROD"}
+{"ts": "2026-01-29 17:06:08,655", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "======================================================================"}
+{"ts": "2026-01-29 17:06:08,657", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "Fetching comprehensive job parameters"}
+{"ts": "2026-01-29 17:06:08,659", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "  Job: etl_lnd_gels_fpms_t_contract_master, Entity: GELS, Source System: FPMS, Env: PROD"}
+{"ts": "2026-01-29 17:06:08,659", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "======================================================================"}
+{"ts": "2026-01-29 17:06:08,659", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "Fetching job_master for job_name='etl_lnd_gels_fpms_t_contract_master'"}
+{"ts": "2026-01-29 17:06:18,280", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "Fetching job_dependency for dependent_job_id='JOB_1001'"}
+{"ts": "2026-01-29 17:06:18,594", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "Fetching process_control for entity='GELS', source_system='FPMS'"}
+{"ts": "2026-01-29 17:06:19,308", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "Fetching sys_params for key_name='etl_lnd_gels_fpms_t_contract_master'"}
+{"ts": "2026-01-29 17:06:19,635", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "======================================================================"}
+{"ts": "2026-01-29 17:06:19,643", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "  - job_master: 1 record"}
+{"ts": "2026-01-29 17:06:19,643", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "  - job_dependency: 1 record(s)"}
+{"ts": "2026-01-29 17:06:19,644", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "  - process_control: 1 record(s)"}
+{"ts": "2026-01-29 17:06:19,644", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "  - sys_params: 6 record(s)"}
+{"ts": "2026-01-29 17:06:19,644", "level": "INFO", "logger": "kudu_fetch_params_functions", "msg": "======================================================================"}
+
+======================================================================
+{"ts": "2026-01-29 17:06:19,655", "level": "ERROR", "logger": "orchestrator_kudu", "msg": "Failed to write params JSON to C:\\MyFiles\\GE\\Orch\\params\\etl_lnd_gels_fpms_t_contract_master.json: 'charmap' codec can't encode character '\\u2713' in position 0: character maps to <undefined>"}
