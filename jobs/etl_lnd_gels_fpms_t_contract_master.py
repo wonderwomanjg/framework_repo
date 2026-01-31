@@ -56,13 +56,15 @@ def main():
     source_system = params.get("source_system", "fpms")
     table_name = params.get("table_name", "t_contract_master")
     
-    # Paths
+    # Paths temporary for this POC only , in GE we will get this paths from sql components
+    ################################################################################
     input_path = params.get("input_path", r"C:\MyFiles\GE\Orch\data\customer_contract_fallback.csv")
     lkp_path = params.get("lkp_path", r"C:\MyFiles\GE\Orch\data\customer_contract_fallback_lkp.csv")
+    out_path = params.get("out_path", r"C:\MyFiles\GE\Orch\out\fdm_landing\gels_fpms_t_contract_master")
+    ################################################################################
 
     sql_dir = params.get("sql_dir", r"C:\MyFiles\GE\Orch\sql")
-    out_path = params.get("out_path", r"C:\MyFiles\GE\Orch\out\fdm_landing\gels_fpms_t_contract_master")
-    
+
     log.info(f"Parameters: env={env}, entity={entity}, source_system={source_system}, table_name={table_name}")
     log.info(f"Paths: input_path={input_path}, sql_dir={sql_dir}, out_path={out_path}")
 
@@ -70,6 +72,8 @@ def main():
     # Determine file format based on extension
     if input_path.endswith('.csv'):
         log.info(f"Reading source CSV from: {input_path}")
+
+        ### Using framework's read_csv function
         df_source = read_csv(spark, input_path, opts={"header": "true", "inferSchema": "true"})
         lkp=read_csv(spark, lkp_path, opts={"header": "true", "inferSchema": "true"})
 
@@ -81,11 +85,11 @@ def main():
 
     df_source.createOrReplaceTempView("row1")
     lkp.createOrReplaceTempView("row2")
-    log.info(f"====================Loaded source data with {df_source.count()} rows")
+    log.info(f"====================Loaded source data=======================")
 
     # ---- Execute HQL Components (Auto-generated from manifest) ----
     
-    # tHiveInput_2 - Load reference data
+    # df_tMap_1_out1 - Load tmap logic from HQL file
     df_tMap_1_out1 = exec_hql(
         spark, 
         'out1', 
@@ -93,7 +97,7 @@ def main():
         log
     )
     
-    # ---- Write Output ----
+    # ---- FINALLY Write Output ----
     log.info(f"Writing ORC output to: {out_path}")
     
     # Get partition columns from params (default to biz_dt, biz_status)
@@ -110,12 +114,12 @@ def main():
         opts={"compression": "snappy"}
     )
     
-    log.info(f"====================ORC output written successfully")
+    log.info(f"====================ORC output written successfully=======================")
     log.info(f"  Path: {out_path}")
     log.info(f"  Partitions: {partition_cols}")
     log.info(f"  Rows: {df_tMap_1_out1.count()}")
 
-    # ---- Cleanup ----
+    # ---- END ----
     log.info("Job completed successfully")
     spark.stop()
 
