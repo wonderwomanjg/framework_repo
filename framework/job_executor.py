@@ -238,6 +238,8 @@ def execute_job_spark_submit(job_params, logger=None, json_file_path=None):
     # Get job base directory (for SQL files, etc.)
     job_base_dir = get_job_base_dir(job_params)
     sql_dir = get_job_sql_dir(job_params)
+    spark_event_log_dir = os.path.join(project_root, "spark-events")
+    os.makedirs(spark_event_log_dir, exist_ok=True)
     
     # Build spark-submit command
     cmd = [
@@ -249,7 +251,10 @@ def execute_job_spark_submit(job_params, logger=None, json_file_path=None):
         "--conf", "spark.driver.extraJavaOptions=--add-exports java.base/sun.nio.ch=ALL-UNNAMED",
         "--conf", "spark.executor.extraJavaOptions=--add-exports java.base/sun.nio.ch=ALL-UNNAMED",
         "--conf", f"spark.executorEnv.PYTHONPATH={project_root}",
-    ]
+          # Enable event logging for history
+        "--conf", "spark.eventLog.enabled=true",
+        "--conf", f"spark.eventLog.dir=file:///{spark_event_log_dir.replace(os.sep, '/')}",
+        ]
     
     # Add additional configs
     for key, value in spark_config.get("additional_conf", {}).items():
@@ -282,6 +287,7 @@ def execute_job_spark_submit(job_params, logger=None, json_file_path=None):
     logger.info(f"Job Base Dir: {job_base_dir}")
     logger.info(f"SQL Dir: {sql_dir}")
     logger.info(f"Master: {master}")
+    logger.info(f"Spark UI: http://localhost:4040")  #
     logger.info(f"{'='*70}\n")
     
     try:

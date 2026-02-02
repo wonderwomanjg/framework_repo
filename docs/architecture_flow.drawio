@@ -1,0 +1,226 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.3.0 Chrome/140.0.7339.249 Electron/38.7.2 Safari/537.36" version="29.3.0">
+  <diagram name="GE Orchestration Framework - Architecture Overview" id="architecture">
+    <mxGraphModel dx="1894" dy="895" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1" value="GE Orchestration Framework - Architecture Overview" vertex="1">
+          <mxGeometry height="40" width="800" x="400" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="kudu_layer_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;opacity=30;" value="" vertex="1">
+          <mxGeometry height="480" width="320" x="40" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kudu_layer_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" value="Kudu Layer" vertex="1">
+          <mxGeometry height="30" width="120" x="60" y="95" as="geometry" />
+        </mxCell>
+        <mxCell id="kudu_cluster" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B8B8B8;strokeColor=#000000;" value="Kudu Cluster (Docker)" vertex="1">
+          <mxGeometry height="40" width="240" x="80" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="job_master_table" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#fff2cc;strokeColor=#d6b656;" value="job_master&lt;br&gt;(Job details)" vertex="1">
+          <mxGeometry height="80" width="120" x="60" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="job_dependency_table" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#fff2cc;strokeColor=#d6b656;" value="job_dependency&#xa;(Dependencies)" vertex="1">
+          <mxGeometry height="80" width="120" x="220" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="process_control_table" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#fff2cc;strokeColor=#d6b656;" value="process_control&lt;br&gt;(biz dt &amp;amp; process dates)" vertex="1">
+          <mxGeometry height="80" width="120" x="60" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="sys_params_table" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#fff2cc;strokeColor=#d6b656;" value="sys_params&lt;br&gt;(Spark Config)" vertex="1">
+          <mxGeometry height="80" width="120" x="220" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="execution_log_table" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#e1d5e7;strokeColor=#9673a6;" value="execution_log&#xa;(Audit Trail)" vertex="1">
+          <mxGeometry height="80" width="120" x="140" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="orch_layer_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;opacity=30;" value="" vertex="1">
+          <mxGeometry height="480" width="360" x="400" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="orch_layer_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" value="Orchestration Layer" vertex="1">
+          <mxGeometry height="30" width="180" x="420" y="95" as="geometry" />
+        </mxCell>
+        <mxCell id="orchestrator" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#60a917;strokeColor=#2D7600;fontColor=#ffffff;fontSize=14;fontStyle=1" value="run_kudu.py&#xa;Orchestrator" vertex="1">
+          <mxGeometry height="60" width="240" x="470" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="framework_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" value="Framework Modules" vertex="1">
+          <mxGeometry height="20" width="240" x="470" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="kudu_fetch" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="kudu_fetch_params.py&#xa;Fetch job params from&#xa;Kudu" vertex="1">
+          <mxGeometry height="70" width="140" x="430" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="params_loader" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="metrics.py&lt;br&gt;Performance tracking" vertex="1">
+          <mxGeometry height="70" width="140" x="600" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="job_executor" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="job_executor.py&#xa;Dynamic job exec" vertex="1">
+          <mxGeometry height="70" width="140" x="430" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="logging_mod" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="logging.py&#xa;Structured logging" vertex="1">
+          <mxGeometry height="70" width="140" x="600" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="metrics_mod" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;div&gt;params_loader.py&lt;/div&gt;&lt;div&gt;JSON I/O&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="310" x="430" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="job_layer_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;opacity=30;" value="" vertex="1">
+          <mxGeometry height="480" width="380" x="800" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="job_layer_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" value="Job Execution Layer" vertex="1">
+          <mxGeometry height="30" width="200" x="820" y="95" as="geometry" />
+        </mxCell>
+        <mxCell id="job_script" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontColor=#000000;fontSize=12;fontStyle=1" value="etl_lnd_gels_fpms_t_contract_master.py" vertex="1">
+          <mxGeometry height="40" width="300" x="840" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="step1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=center;" value="1. Load Job Params&#xa;(from JSON)" vertex="1">
+          <mxGeometry height="50" width="300" x="840" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="step2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=center;" value="2. Read HQL Template&#xa;(SQL transformations)" vertex="1">
+          <mxGeometry height="50" width="300" x="840" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="step3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=center;" value="3. Execute Spark SQL&#xa;(Data processing)" vertex="1">
+          <mxGeometry height="50" width="300" x="840" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="step4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=center;" value="4. Write Output&lt;br&gt;(ORC )" vertex="1">
+          <mxGeometry height="50" width="300" x="840" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="step5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=center;" value="5. Return Control&#xa;(Back to orchestrator)" vertex="1">
+          <mxGeometry height="50" width="300" x="840" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="output_layer_bg" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;opacity=30;" value="" vertex="1">
+          <mxGeometry height="480" width="190" x="1220" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="output_layer_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" value="Output Layer" vertex="1">
+          <mxGeometry height="30" width="140" x="1240" y="95" as="geometry" />
+        </mxCell>
+        <mxCell id="output_csv" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#ffffff;strokeColor=#000000;size=15;" value="" vertex="1">
+          <mxGeometry height="100" width="80" x="1270" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="output_csv_label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="gels_fpms_t_&lt;div&gt;contract_master.orc file&amp;nbsp;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="45" x="1287.5" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="output_logs" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#ffffff;strokeColor=#000000;size=15;" value="" vertex="1">
+          <mxGeometry height="100" width="80" x="1270" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="output_logs_label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="Logs&#xa;(job_*.log)" vertex="1">
+          <mxGeometry height="30" width="180" x="1220" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="output_params" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#ffffff;strokeColor=#000000;size=15;" value="" vertex="1">
+          <mxGeometry height="100" width="80" x="1270" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="output_params_label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" value="Job Params JSON&#xa;(params/*.json)" vertex="1">
+          <mxGeometry height="30" width="180" x="1220" y="475" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow1" edge="1" parent="1" source="job_master_table" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;fillColor=#dae8fc;strokeColor=#6c8ebf;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="orchestrator">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="180" y="250" />
+              <mxPoint x="325" y="250" />
+              <mxPoint x="325" y="170" />
+            </Array>
+            <mxPoint x="360" y="260" as="sourcePoint" />
+            <mxPoint x="470" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow1_label" connectable="0" parent="arrow1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1" value="1. Fetch Params" vertex="1">
+          <mxGeometry relative="1" x="-0.1" y="2" as="geometry">
+            <mxPoint x="57" y="-44" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow2" edge="1" parent="1" source="orchestrator" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;fillColor=#d5e8d4;strokeColor=#82b366;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="job_script">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="710" y="170" as="sourcePoint" />
+            <mxPoint x="840" y="160" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow2_label" connectable="0" parent="arrow2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1" value="3. Execute Job" vertex="1">
+          <mxGeometry relative="1" x="-0.1" y="1" as="geometry">
+            <mxPoint x="5" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow3" edge="1" parent="1" source="step1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;fillColor=#ffe6cc;strokeColor=#d79b00;entryX=1;entryY=0.75;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;dashed=1;" target="orchestrator">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="840" y="235" as="sourcePoint" />
+            <mxPoint x="710" y="185" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow3_label" connectable="0" parent="arrow3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontStyle=1" value="2. Save JSON" vertex="1">
+          <mxGeometry relative="1" x="-0.1" y="1" as="geometry">
+            <mxPoint x="-5" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow4" edge="1" parent="1" source="step4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;fillColor=#ffe6cc;strokeColor=#d79b00;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="output_csv">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1140" y="445" as="sourcePoint" />
+            <mxPoint x="1270" y="230" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow4_label" connectable="0" parent="arrow4" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=11;fontStyle=1" value="4. Write Output" vertex="1">
+          <mxGeometry relative="1" x="-0.1" y="1" as="geometry">
+            <mxPoint x="5" y="-12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="logging_arrow" edge="1" parent="1" source="step3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=2;fillColor=#ffffff;strokeColor=#666666;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;dashed=1;" target="output_logs">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1140" y="375" as="sourcePoint" />
+            <mxPoint x="1270" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="logging_label" connectable="0" parent="logging_arrow" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;fontStyle=0;fontColor=#666666;" value="Logging" vertex="1">
+          <mxGeometry relative="1" x="-0.1" y="1" as="geometry">
+            <mxPoint x="5" y="-10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;opacity=50;" value="" vertex="1">
+          <mxGeometry height="240" width="420" x="540" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" value="Execution Flow" vertex="1">
+          <mxGeometry height="30" width="160" x="620" y="610" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_1" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" value="1. Start orchestrator (run_kudu.py)" vertex="1">
+          <mxGeometry height="20" width="300" x="620" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_2" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" value="2. Orchestrator fetches params from Kudu tables" vertex="1">
+          <mxGeometry height="20" width="300" x="620" y="675" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_3" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" value="3. Params saved to JSON file (params/*.json)" vertex="1">
+          <mxGeometry height="20" width="300" x="620" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_4" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" value="4. Job script executed dynamically with params and follows the structured template generated by automation" vertex="1">
+          <mxGeometry height="20" width="300" x="620" y="725" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_5" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" value="5. Job processes data using Spark SQL" vertex="1">
+          <mxGeometry height="20" width="300" x="620" y="750" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_6" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" value="6. Output written to ORC" vertex="1">
+          <mxGeometry height="20" width="300" x="620" y="775" as="geometry" />
+        </mxCell>
+        <mxCell id="flow_7" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" value="7. Orchestrator logs completion and stops Spark" vertex="1">
+          <mxGeometry height="20" width="300" x="620" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_data_storage" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" value="Data Storage" vertex="1">
+          <mxGeometry height="30" width="120" x="220" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_orchestration" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" value="Orchestration" vertex="1">
+          <mxGeometry height="30" width="120" x="40" y="665" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_job_exec" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" value="Job Execution" vertex="1">
+          <mxGeometry height="30" width="120" x="40" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_output" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" value="Output Files" vertex="1">
+          <mxGeometry height="30" width="120" x="220" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_support" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="Supporting Components" vertex="1">
+          <mxGeometry height="30" width="150" x="40" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="AEt1uck48vHm7FHVIGmB-3" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFF66;" value="1" vertex="1">
+          <mxGeometry height="30" width="30" x="190" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="AEt1uck48vHm7FHVIGmB-5" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFF66;" value="2" vertex="1">
+          <mxGeometry height="30" width="30" x="575" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="AEt1uck48vHm7FHVIGmB-6" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFF66;" value="3" vertex="1">
+          <mxGeometry height="30" width="30" x="990" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="AEt1uck48vHm7FHVIGmB-7" parent="1" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#FFFF66;" value="4" vertex="1">
+          <mxGeometry height="30" width="30" x="1287.5" y="65" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -200,10 +200,10 @@ subprocess.run([
     "etl_lnd_gels_fpms_t_contract_master.py"
 ])  # ✓ Fresh Spark context, clean environment
 
-✅ Separate JVM process (no conflicts)
-✅ Independent Spark session
-✅ Clean environment variables
-✅ Proper resource isolation
+===>> Separate JVM process (no conflicts)
+===>> Independent Spark session
+===>> Clean environment variables
+===>> Proper resource isolation
 
 
 
@@ -294,22 +294,60 @@ spark-submit.cmd my_job.py
 
 What happens:
 
-✅ Uses Spark's bundled PySpark (pyspark)
-✅ Ignores your pip-installed pyspark
-✅ Uses your system Python (3.11.1) as the interpreter
+===>> Uses Spark's bundled PySpark (pyspark)
+===>> Ignores your pip-installed pyspark
+===>> Uses your system Python (3.11.1) as the interpreter
 ⚠️ Needs your custom libraries (framework module)
 
 
 Since you're using spark-submit, you don't need pip's pyspark:
 
 
+Bundles a full Spark installation inside the Python package
+Lets you run from pyspark.sql import SparkSession in a regular Python script
+Executes Spark in-process (same Python process)
+The spark-submit here is just a Python script that calls Java
+
+Python's import system could pick the wrong one:
+
+If you run python my_job.py → Uses pip's pyspark (in-process)
+If you run spark-submit my_job.py → Java adds pyspark.zip to PYTHONPATH first, so uses standalone's pyspark
+
+===>> Spark engine: Comes from jars (Java/Scala)
+===>> PySpark library: Injected automatically from pyspark.zip
+===>> Python interpreter: Your python.exe
+===>> Custom code: Your framework module (via PYTHONPATH)
 
 ######################################################
 
-Best Solution: Use PowerShell for pyspark Shell
+On a Cloudera cluster:
+spark-submit --master yarn my_job.py
+
+
+Why it works without explicit path:
+
+===>> /usr/bin/python3 is standardized across cluster
+===>> Admins pre-installed all packages cluster-wide
+===>> python3 command always points to correct version
+===>> All nodes have identical Python setup
+
+
+
+
+
+
+
+
+
+
+
+
+########################################################
+
+Use PowerShell for pyspark Shell
 Git Bash is for Unix-style commands, PowerShell is for Windows tools like Spark.
 
-# Navigate to your project
+
 cd C:\MyFiles\GE\Orch
 
 # Activate virtual environment
@@ -331,12 +369,26 @@ export PYTHONPATH="/c/MyFiles/GE/Orch"
 export PATH="$JAVA_HOME/bin:$SPARK_HOME/bin:$HADOOP_HOME/bin:$PATH"
 
 
-orc_path = r"C:\MyFiles\GE\Orch\out\fdm_landing\gels_fpms_t_contract_master"
+orc_path = r"C:\MyFiles\GE\Orch\out\fdm_landing\gels_fpms_t_contract_master\biz_dt=2025-05-31\biz_status=active"
 src = spark.read.orc(orc_path)
 src.show(20,truncate=False)
 
 
 ##################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 direct CLI --On-prem / Hadoop cluster (YARN)
@@ -403,3 +455,9 @@ Creates temp views for sources (row1, row2, …)
 Executes HQL via exec_hql(...)
 Writes sinks; if sink format is orc, uses write_orc; otherwise falls back to .write.format(...).save(...)
 Keeps your partitioning behavior (partition_cols from params)
+
+
+#######################################
+--add-exports java.base/sun.nio.ch=ALL-UNNAMED tells the JVM:
+
+Allow unnamed modules (i.e., everything on the classpath—your Spark/Kudu/Hadoop jars) to access the sun.nio.ch package from the java.base module.

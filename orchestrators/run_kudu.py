@@ -6,7 +6,7 @@ python orchestrators/run_kudu.py \
   --env PROD \
   --pretty
   
-Kudu-based orchestrator - Fetches job parameters from Kudu tables and executes downstream jobs.
+Kudu-based orchestrator Fetches job parameters from Kudu tables and executes downstream jobs.
 """
 import os
 import argparse
@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 import pyspark
 
-# Configure Java, Spark, and Hadoop for Windows
+# Configure Java, Spark, and Hadoop
 os.environ['JAVA_HOME'] = r'C:\Program Files\Eclipse Adoptium\jdk-17.0.17.10-hotspot'
 os.environ['SPARK_HOME'] = r'C:\spark'  # Use explicit Spark installation, not pyspark package
 os.environ['HADOOP_HOME'] = r'C:\hadoop'  # Required for winutils
@@ -101,7 +101,7 @@ def main():
     json_file_path = get_job_params_path(args.job_name)
     save_job_params_to_json(job_params, json_file_path, pretty=args.pretty)
 
-    
+
     log.info(f"✓ Wrote comprehensive job parameters to: {json_file_path}")
     print_params_summary(job_params, json_file_path)
     

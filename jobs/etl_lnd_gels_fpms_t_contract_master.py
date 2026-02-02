@@ -102,7 +102,7 @@ def main():
         log
     )
     
-    # ---- FINALLY Write Output ----
+    # ---- FINALLY Write Output to ORC Paths----
     log.info(f"Writing ORC output to: {out_path}")
     
     # Get partition columns from params (default to biz_dt, biz_status)
