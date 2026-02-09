@@ -7,21 +7,42 @@ import os
 from pyspark.sql import SparkSession
 from framework import get_logger, set_spark_log_level
 from framework.io import write_orc
-from framework.params_loader import load_job_params_from_json, flatten_job_params
+from framework.params_loader import load_and_merge_params
 
 def exec_hql(spark, view_name, hql_path, log, params=None):
-    """Execute HQL file with parameter substitution and create temp view"""
+    """Execute HQL file with parameter substitution and create temp view
+    Supports both ${key} and context.key (Talend) formats
+    """
     log.info(f"Executing HQL: {hql_path} -> creating view '{view_name}'")
     
     with open(hql_path, 'r', encoding='utf-8') as f:
         query = f.read()
-        print(f"query: {query} ")
     
     # Parameter substitution if provided
     if params:
         for key, value in params.items():
+            # Replace ${key} format
             placeholder = f"${{{key}}}"
             query = query.replace(placeholder, str(value))
+            
+            # Replace Talend patterns - ORDER MATTERS (most specific first)
+            # Pattern 1: ''" + context.key + "'' → 'value' (double single quotes)
+            talend_pattern1 = f"''\" + context.{key} + \"''"
+            query = query.replace(talend_pattern1, f"'{value}'")
+            
+            # Pattern 2: '" + context.key + "' → 'value' (single quotes)
+            talend_pattern2 = f"'\" + context.{key} + \"'"
+            query = query.replace(talend_pattern2, f"'{value}'")
+            
+            # Pattern 3: " + context.key + " → value (no quotes - for numeric columns)
+            talend_pattern3 = f"\" + context.{key} + \""
+            query = query.replace(talend_pattern3, str(value))
+            
+            # Pattern 4: Simple context.key (standalone - only if not already replaced)
+            context_placeholder = f"context.{key}"
+            query = query.replace(context_placeholder, str(value))
+            
+            log.info(f"Replaced parameter: {key} -> {value}")
     
     df = spark.sql(query)
     df.createOrReplaceTempView(view_name)
@@ -47,15 +68,16 @@ def main():
     log.info("=" * 80)
 
     # ---- Load Parameters ----
-    job_params_file = os.environ.get("JOB_PARAMS_FILE")
-    if not job_params_file:
-        raise ValueError("Environment variable JOB_PARAMS_FILE not set")
-    
-    all_params = load_job_params_from_json(job_params_file)
-    params = flatten_job_params(all_params)
+    # Load and merge parameters: Kudu params + job-specific context params
+    # Kudu params take precedence over job context params
+    #params = load_and_merge_params()
+# Both static file paths
+    params = load_and_merge_params(
+    kudu_params_file="C:/MyFiles/GE/Orch/params/my_test_job.json"
+)
     
     log.info("Job Configuration:")
-    log.info(f"  Params file: {job_params_file}")
+    log.info(f"  Parameters loaded and merged from Kudu + job contexts")
 
     # Extract parameters
     sql_dir = os.environ.get("JOB_SQL_DIR")
@@ -76,6 +98,7 @@ def main():
   
     #########
     biz_dt = params.get("biz_dt")
+    process_from_date = params.get("process_from_date",'2026-02-31')
     
     if not biz_dt:
         raise ValueError("Parameter 'biz_dt' is required")
@@ -83,13 +106,14 @@ def main():
     log.info(f"  SQL Directory: {sql_dir}")
     log.info(f"  Output Path: {out_path}")
     log.info(f"  Business Date: {biz_dt}")
+    log.info(f"  process_from_date: {process_from_date}")
 
     # ===================== STAGE 1: Read from CSV Files =====================
     log.info("\n" + "=" * 80)
     log.info("STAGE 1: Reading from CSV files")
     log.info("=" * 80)
     
-    hql_params = {"biz_dt": biz_dt}
+    hql_params = {"biz_dt": biz_dt, "process_from_date": process_from_date}
     
     # ---- Read Customer Master ----
     df_customers = spark.read.csv(input_path1,header=True,inferSchema=True)
